@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import { saveProfile } from "./actions";
+import { saveProfile, estimateMeasurements } from "./actions";
 
 // ─── Shoe size data ───────────────────────────────────────────────────────────
 type ShoeSystem = "eu" | "usMen" | "usWomen" | "uk";
@@ -112,38 +112,69 @@ function Field({ label, placeholder, value, onChange }: {
 // ─── Silhouette SVGs ──────────────────────────────────────────────────────────
 function FrontSilhouette() {
   return (
-    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
-      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
-      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
-      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
-      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
+      {/* head */}
+      <ellipse cx="40" cy="16" rx="13" ry="14" fill="#C9CBD0" />
+      {/* neck */}
+      <path d="M34 28 L34 35 Q40 37 46 35 L46 28" fill="#C9CBD0" />
+      {/* torso */}
+      <path d="M14 40 Q40 33 66 40 L62 96 Q40 103 18 96 Z" fill="#C9CBD0" />
+      {/* left arm – angled out */}
+      <path d="M14 40 L4 88 Q3 94 9 94 Q13 94 14 90 L22 44 Z" fill="#C9CBD0" />
+      {/* right arm */}
+      <path d="M66 40 L76 88 Q77 94 71 94 Q67 94 66 90 L58 44 Z" fill="#C9CBD0" />
+      {/* left leg */}
+      <path d="M18 96 L12 166 Q12 172 18 172 Q23 172 24 167 L30 100 Z" fill="#C9CBD0" />
+      {/* right leg */}
+      <path d="M62 96 L68 166 Q68 172 62 172 Q57 172 56 167 L50 100 Z" fill="#C9CBD0" />
     </svg>
   );
 }
+
 function SideSilhouette() {
   return (
-    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
-      <circle cx="33" cy="13" r="9" fill="#D1D5DB" />
-      <rect x="26" y="27" width="14" height="35" rx="5" fill="#D1D5DB" />
-      <rect x="15" y="31" width="9" height="22" rx="4" fill="#D1D5DB" />
-      <rect x="38" y="29" width="9" height="14" rx="4" fill="#D1D5DB" />
-      <rect x="26" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
-      <rect x="37" y="64" width="10" height="44" rx="5" fill="#D1D5DB" />
+    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
+      {/* head – offset to show profile */}
+      <ellipse cx="42" cy="16" rx="11" ry="14" fill="#C9CBD0" />
+      {/* slight nose bump */}
+      <path d="M53 14 Q57 18 54 22" stroke="#B0B3BA" strokeWidth="1.5" strokeLinecap="round" />
+      {/* neck */}
+      <path d="M36 28 L36 35 Q42 37 48 35 L48 28" fill="#C9CBD0" />
+      {/* torso – narrower for side view */}
+      <path d="M28 40 Q42 34 52 40 L50 96 Q42 102 28 96 Z" fill="#C9CBD0" />
+      {/* front arm – forward and down */}
+      <path d="M28 42 L14 84 Q13 90 19 90 Q22 90 24 86 L32 46 Z" fill="#C9CBD0" />
+      {/* back arm – behind body, shorter visible portion */}
+      <path d="M50 42 L58 76 Q59 81 55 81 Q52 81 51 78 L46 46 Z" fill="#C9CBD0" />
+      {/* front leg */}
+      <path d="M28 96 L22 166 Q22 172 28 172 Q33 172 34 167 L38 100 Z" fill="#C9CBD0" />
+      {/* back leg – slightly offset */}
+      <path d="M46 96 L50 162 Q50 168 45 168 Q41 168 40 163 L38 100 Z" fill="#C9CBD0" />
     </svg>
   );
 }
+
 function BackSilhouette() {
   return (
-    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
-      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
-      <rect x="12" y="9" width="36" height="8" rx="4" fill="#C4C4C4" />
-      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
-      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
-      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
+      {/* head – no face */}
+      <ellipse cx="40" cy="16" rx="13" ry="14" fill="#C9CBD0" />
+      {/* hair line across back of head */}
+      <path d="M28 22 Q40 30 52 22" stroke="#B0B3BA" strokeWidth="2" strokeLinecap="round" />
+      {/* neck */}
+      <path d="M34 28 L34 35 Q40 37 46 35 L46 28" fill="#C9CBD0" />
+      {/* torso */}
+      <path d="M14 40 Q40 33 66 40 L62 96 Q40 103 18 96 Z" fill="#C9CBD0" />
+      {/* subtle spine */}
+      <line x1="40" y1="38" x2="40" y2="94" stroke="#B8BAC0" strokeWidth="1.5" strokeLinecap="round" />
+      {/* left arm */}
+      <path d="M14 40 L4 88 Q3 94 9 94 Q13 94 14 90 L22 44 Z" fill="#C9CBD0" />
+      {/* right arm */}
+      <path d="M66 40 L76 88 Q77 94 71 94 Q67 94 66 90 L58 44 Z" fill="#C9CBD0" />
+      {/* left leg */}
+      <path d="M18 96 L12 166 Q12 172 18 172 Q23 172 24 167 L30 100 Z" fill="#C9CBD0" />
+      {/* right leg */}
+      <path d="M62 96 L68 166 Q68 172 62 172 Q57 172 56 167 L50 100 Z" fill="#C9CBD0" />
     </svg>
   );
 }
@@ -170,14 +201,16 @@ function PhotoGuide() {
       <div className="grid grid-cols-3 gap-3">
         {angles.map(({ label, Icon }) => (
           <div key={label} className="text-center">
-            <div className="relative border border-ss-border rounded-xl bg-white overflow-hidden mx-auto" style={{ aspectRatio: "3/4", maxWidth: 72 }}>
-              <div className="absolute top-1 left-1 w-2.5 h-2.5 border-l-2 border-t-2 border-ss-text/40 rounded-sm" />
-              <div className="absolute top-1 right-1 w-2.5 h-2.5 border-r-2 border-t-2 border-ss-text/40 rounded-sm" />
-              <div className="absolute bottom-1 left-1 w-2.5 h-2.5 border-l-2 border-b-2 border-ss-text/40 rounded-sm" />
-              <div className="absolute bottom-1 right-1 w-2.5 h-2.5 border-r-2 border-b-2 border-ss-text/40 rounded-sm" />
+            <div className="relative rounded-2xl overflow-hidden mx-auto shadow-sm"
+              style={{ aspectRatio: "3/4", maxWidth: 80, background: "linear-gradient(160deg, #f3f4f6 0%, #e9eaec 100%)" }}>
+              {/* angle badge */}
+              <div className="absolute top-2 left-0 right-0 flex justify-center">
+                <span className="text-[9px] font-semibold tracking-widest text-ss-text-muted uppercase bg-white/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                  {label}
+                </span>
+              </div>
               <Icon />
             </div>
-            <p className="text-xs font-medium text-ss-text mt-1.5">{label}</p>
           </div>
         ))}
       </div>
@@ -354,6 +387,9 @@ export default function OnboardingPage() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [estimating, setEstimating] = useState(false);
+  const [estimated, setEstimated] = useState(false);
+  const [estimateError, setEstimateError] = useState("");
 
   const set = (key: keyof FormData) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -388,7 +424,7 @@ export default function OnboardingPage() {
   function canContinue() {
     if (step === 1) return form.height && form.weight && form.gender;
     if (step === 2) return true; // photo is optional
-    if (step === 3) return form.bust && form.waist && form.hips;
+    if (step === 3) return true; // always continuable — user can skip measurements
     if (step === 4) return !!form.shoe_eu;
     if (step === 5) return !!form.skin_tone;
     return true;
@@ -547,11 +583,79 @@ export default function OnboardingPage() {
 
         {step === 3 && (
           <div className="space-y-4">
+            {/* AI estimate button — only if photos were uploaded */}
+            {(photos.front.path || photos.side.path || photos.back.path) && (
+              <div className="rounded-xl border border-ss-border bg-ss-bg-secondary p-4 flex flex-col gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-ss-text flex items-center justify-center shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                      <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 6v6l4 2"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-ss-text">Estimate from your photos</p>
+                    <p className="text-xs text-ss-text-muted mt-0.5">
+                      AI will analyse your body photos and suggest measurements — you can adjust them after.
+                    </p>
+                  </div>
+                </div>
+                {estimateError && (
+                  <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2">{estimateError}</p>
+                )}
+                <button type="button"
+                  disabled={estimating}
+                  onClick={async () => {
+                    setEstimating(true);
+                    setEstimateError("");
+                    const res = await estimateMeasurements(
+                      { front: photos.front.path ?? undefined, side: photos.side.path ?? undefined, back: photos.back.path ?? undefined },
+                      Number(form.height),
+                      Number(form.weight)
+                    );
+                    if (res.error) {
+                      setEstimateError(res.error);
+                    } else {
+                      setForm(f => ({
+                        ...f,
+                        bust:  res.bust  ? String(res.bust)  : f.bust,
+                        waist: res.waist ? String(res.waist) : f.waist,
+                        hips:  res.hips  ? String(res.hips)  : f.hips,
+                      }));
+                      setEstimated(true);
+                    }
+                    setEstimating(false);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 bg-ss-text text-white text-xs font-medium px-4 py-2 rounded-lg hover:bg-ss-text/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                >
+                  {estimating ? (
+                    <>
+                      <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                      </svg>
+                      Analysing photos…
+                    </>
+                  ) : estimated ? "Re-estimate from photos" : "Estimate measurements →"}
+                </button>
+              </div>
+            )}
+
+            {estimated && (
+              <p className="text-xs text-ss-text-muted flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" fill="#10B981"/>
+                  <path stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="m8 12 3 3 5-5"/>
+                </svg>
+                AI estimates filled in — adjust the numbers below if needed.
+              </p>
+            )}
+
             <Field label="Bust (cm)" placeholder="90" value={form.bust} onChange={set("bust")} />
             <Field label="Waist (cm)" placeholder="75" value={form.waist} onChange={set("waist")} />
             <Field label="Hips (cm)" placeholder="95" value={form.hips} onChange={set("hips")} />
+
             <p className="text-xs text-ss-text-muted bg-ss-bg-secondary border border-ss-border rounded-lg px-4 py-3">
-              Measure at the fullest part of each area. Wrap the tape comfortably snug — not tight.
+              Measure at the fullest part of each area. Wrap the tape comfortably snug — not tight. Leave blank to skip.
             </p>
           </div>
         )}
