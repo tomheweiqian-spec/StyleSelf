@@ -13,6 +13,8 @@ export interface ProfileData {
   shoe_size: number;
   skin_tone: string;
   body_photo_path?: string;
+  body_photo_side_path?: string;
+  body_photo_back_path?: string;
 }
 
 export async function saveProfile(data: ProfileData) {

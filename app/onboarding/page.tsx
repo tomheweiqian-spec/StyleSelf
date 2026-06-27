@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { saveProfile } from "./actions";
@@ -109,50 +109,94 @@ function Field({ label, placeholder, value, onChange }: {
   );
 }
 
-// ─── Photo guide illustration ─────────────────────────────────────────────────
-function PhotoGuide() {
+// ─── Silhouette SVGs ──────────────────────────────────────────────────────────
+function FrontSilhouette() {
   return (
-    <div className="rounded-2xl border border-ss-border bg-ss-bg-secondary p-5">
-      <p className="text-xs font-medium uppercase tracking-widest text-ss-text-muted mb-4">
-        Photo guide
-      </p>
-      <div className="flex gap-5 items-start">
-        {/* Silhouette illustration */}
-        <div className="shrink-0">
-          <div className="relative w-24 border-2 border-ss-text/20 rounded-xl bg-white overflow-hidden" style={{ aspectRatio: "3/4" }}>
-            {/* Camera corners */}
-            <div className="absolute top-1.5 left-1.5 w-3 h-3 border-l-2 border-t-2 border-ss-text rounded-sm" />
-            <div className="absolute top-1.5 right-1.5 w-3 h-3 border-r-2 border-t-2 border-ss-text rounded-sm" />
-            <div className="absolute bottom-1.5 left-1.5 w-3 h-3 border-l-2 border-b-2 border-ss-text rounded-sm" />
-            <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-r-2 border-b-2 border-ss-text rounded-sm" />
-            {/* Person silhouette */}
-            <svg viewBox="0 0 60 130" className="w-full h-full p-2">
-              <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
-              <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
-              <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-              <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
-              <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
-              <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
-            </svg>
-          </div>
-          <p className="text-center text-xs font-medium mt-2" style={{ color: "#10B981" }}>✓ Good</p>
-        </div>
-        {/* Tips */}
-        <div className="space-y-2.5 flex-1">
-          {[
-            ["↕", "Full body in frame — head to feet"],
-            ["↑", "Stand straight, look forward"],
-            ["↔", "Arms slightly away from body"],
-            ["◑", "Even lighting, no harsh shadows"],
-            ["□", "Plain, uncluttered background"],
-            ["📱", "Phone at chest height works great"],
-          ].map(([icon, tip]) => (
-            <div key={tip} className="flex items-start gap-2">
-              <span className="text-xs text-ss-text-muted w-4 shrink-0 mt-0.5">{icon}</span>
-              <p className="text-xs text-ss-text-muted leading-snug">{tip}</p>
+    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
+      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
+      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+    </svg>
+  );
+}
+function SideSilhouette() {
+  return (
+    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
+      <circle cx="33" cy="13" r="9" fill="#D1D5DB" />
+      <rect x="26" y="27" width="14" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="15" y="31" width="9" height="22" rx="4" fill="#D1D5DB" />
+      <rect x="38" y="29" width="9" height="14" rx="4" fill="#D1D5DB" />
+      <rect x="26" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="37" y="64" width="10" height="44" rx="5" fill="#D1D5DB" />
+    </svg>
+  );
+}
+function BackSilhouette() {
+  return (
+    <svg viewBox="0 0 60 130" className="w-full h-full p-2">
+      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
+      <rect x="12" y="9" width="36" height="8" rx="4" fill="#C4C4C4" />
+      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+    </svg>
+  );
+}
+
+// ─── Photo guide ──────────────────────────────────────────────────────────────
+function PhotoGuide() {
+  const angles = [
+    { label: "Front", Icon: FrontSilhouette },
+    { label: "Side",  Icon: SideSilhouette  },
+    { label: "Back",  Icon: BackSilhouette  },
+  ];
+  return (
+    <div className="rounded-2xl border border-ss-border bg-ss-bg-secondary p-5 space-y-4">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-widest text-ss-text-muted mb-1">
+          Photo guide
+        </p>
+        <p className="text-xs text-ss-text-muted">
+          💡 Ask a peer to take your photos — it&apos;s much easier than a selfie and gives better results.
+        </p>
+      </div>
+
+      {/* Angle illustrations */}
+      <div className="grid grid-cols-3 gap-3">
+        {angles.map(({ label, Icon }) => (
+          <div key={label} className="text-center">
+            <div className="relative border border-ss-border rounded-xl bg-white overflow-hidden mx-auto" style={{ aspectRatio: "3/4", maxWidth: 72 }}>
+              <div className="absolute top-1 left-1 w-2.5 h-2.5 border-l-2 border-t-2 border-ss-text/40 rounded-sm" />
+              <div className="absolute top-1 right-1 w-2.5 h-2.5 border-r-2 border-t-2 border-ss-text/40 rounded-sm" />
+              <div className="absolute bottom-1 left-1 w-2.5 h-2.5 border-l-2 border-b-2 border-ss-text/40 rounded-sm" />
+              <div className="absolute bottom-1 right-1 w-2.5 h-2.5 border-r-2 border-b-2 border-ss-text/40 rounded-sm" />
+              <Icon />
             </div>
-          ))}
-        </div>
+            <p className="text-xs font-medium text-ss-text mt-1.5">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tips */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+        {[
+          ["↕", "Full body — head to feet"],
+          ["↑", "Stand straight, look forward"],
+          ["↔", "Arms slightly away from body"],
+          ["◑", "Even lighting, no harsh shadows"],
+          ["□", "Plain, uncluttered background"],
+          ["📱", "Phone at chest height"],
+        ].map(([icon, tip]) => (
+          <div key={tip} className="flex items-start gap-2">
+            <span className="text-xs text-ss-text-muted w-4 shrink-0 mt-0.5">{icon}</span>
+            <p className="text-xs text-ss-text-muted leading-snug">{tip}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -294,17 +338,19 @@ function ShoeSizeStep({ shoeEU, setShoeEU }: { shoeEU: string; setShoeEU: (v: st
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(EMPTY);
 
-  // Photo state
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [photoPath, setPhotoPath] = useState<string | null>(null);
-  const [photoUploading, setPhotoUploading] = useState(false);
+  // Photo state — front / side / back
+  type Angle = "front" | "side" | "back";
+  const [photos, setPhotos] = useState<Record<Angle, { preview: string | null; path: string | null }>>({
+    front: { preview: null, path: null },
+    side:  { preview: null, path: null },
+    back:  { preview: null, path: null },
+  });
+  const [photoUploading, setPhotoUploading] = useState<Angle | null>(null);
   const [photoError, setPhotoError] = useState("");
-  const [dragging, setDragging] = useState(false);
+  const [dragging, setDragging] = useState<Angle | null>(null);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -313,19 +359,19 @@ export default function OnboardingPage() {
     setForm((f) => ({ ...f, [key]: value }));
 
   // Photo upload handler
-  const handlePhotoFile = useCallback(async (file: File) => {
+  const handlePhotoFile = useCallback(async (file: File, angle: "front" | "side" | "back") => {
     if (!file.type.startsWith("image/")) {
       setPhotoError("Please upload an image file (JPG or PNG).");
       return;
     }
     setPhotoError("");
-    setPhotoUploading(true);
+    setPhotoUploading(angle);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setPhotoError("Not signed in."); setPhotoUploading(false); return; }
+    if (!user) { setPhotoError("Not signed in."); setPhotoUploading(null); return; }
 
     const ext = file.name.split(".").pop();
-    const path = `${user.id}/body-photo.${ext}`;
+    const path = `${user.id}/body-photo-${angle}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("user-photos")
@@ -334,10 +380,9 @@ export default function OnboardingPage() {
     if (uploadError) {
       setPhotoError(uploadError.message);
     } else {
-      setPhotoPath(path);
-      setPhotoPreview(URL.createObjectURL(file));
+      setPhotos(prev => ({ ...prev, [angle]: { preview: URL.createObjectURL(file), path } }));
     }
-    setPhotoUploading(false);
+    setPhotoUploading(null);
   }, []);
 
   function canContinue() {
@@ -362,7 +407,9 @@ export default function OnboardingPage() {
       hips: Number(form.hips),
       shoe_size: Number(form.shoe_eu),
       skin_tone: form.skin_tone,
-      body_photo_path: photoPath ?? undefined,
+      body_photo_path:      photos.front.path ?? undefined,
+      body_photo_side_path: photos.side.path  ?? undefined,
+      body_photo_back_path: photos.back.path  ?? undefined,
     });
     if (result?.error) { setError(result.error); setSaving(false); }
   }
@@ -419,62 +466,76 @@ export default function OnboardingPage() {
 
         {step === 2 && (
           <div className="space-y-5">
-            {!photoPreview ? (
-              <div
-                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-                onDragLeave={() => setDragging(false)}
-                onDrop={(e) => {
-                  e.preventDefault(); setDragging(false);
-                  const file = e.dataTransfer.files[0];
-                  if (file) handlePhotoFile(file);
-                }}
-                onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer transition-colors ${
-                  dragging ? "border-ss-text bg-ss-bg-secondary" : "border-ss-border hover:border-ss-text/40 hover:bg-ss-bg-secondary"
-                }`}
-              >
-                <div className="w-12 h-12 rounded-xl bg-ss-bg-secondary border border-ss-border flex items-center justify-center">
-                  {photoUploading ? (
-                    <svg className="animate-spin h-5 w-5 text-ss-text-muted" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                    </svg>
-                  )}
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-ss-text">
-                    {photoUploading ? "Uploading…" : "Drop your photo here, or click to browse"}
-                  </p>
-                  <p className="text-xs text-ss-text-muted mt-1">JPG or PNG · Full-body · Well-lit</p>
-                </div>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoFile(f); }}
-                />
-              </div>
-            ) : (
-              <div className="flex gap-4 items-start p-4 rounded-2xl border border-ss-border bg-ss-bg-secondary">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoPreview} alt="Body photo preview"
-                  className="w-20 aspect-[3/4] object-cover rounded-xl border border-ss-border"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-ss-text mb-1">Photo uploaded</p>
-                  <p className="text-xs text-ss-text-muted mb-3">This will be used for virtual try-ons.</p>
-                  <button type="button"
-                    onClick={() => { setPhotoPreview(null); setPhotoPath(null); }}
-                    className="text-xs text-ss-text-muted hover:text-ss-text underline transition-colors"
-                  >Change photo</button>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="#10B981" />
-                  <path stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="m8 12 3 3 5-5" />
-                </svg>
-              </div>
-            )}
+            {/* Three upload slots */}
+            <div className="grid grid-cols-3 gap-3">
+              {(["front", "side", "back"] as const).map((angle) => {
+                const slot = photos[angle];
+                const isUploading = photoUploading === angle;
+                const isDraggingThis = dragging === angle;
+                return (
+                  <div key={angle} className="flex flex-col gap-2">
+                    <p className="text-xs font-medium text-ss-text capitalize text-center">{angle} view</p>
+                    {slot.preview ? (
+                      <div className="relative rounded-xl overflow-hidden border border-ss-border" style={{ aspectRatio: "3/4" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={slot.preview} alt={`${angle} view`} className="w-full h-full object-cover" />
+                        <button type="button"
+                          onClick={() => setPhotos(p => ({ ...p, [angle]: { preview: null, path: null } }))}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition-colors"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                            <path strokeLinecap="round" d="M6 18 18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <div className="absolute bottom-1.5 right-1.5">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#10B981" />
+                            <path stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="m8 12 3 3 5-5" />
+                          </svg>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onDragOver={(e) => { e.preventDefault(); setDragging(angle); }}
+                        onDragLeave={() => setDragging(null)}
+                        onDrop={(e) => {
+                          e.preventDefault(); setDragging(null);
+                          const file = e.dataTransfer.files[0];
+                          if (file) handlePhotoFile(file, angle);
+                        }}
+                        onClick={() => {
+                          const el = document.getElementById(`file-${angle}`) as HTMLInputElement;
+                          el?.click();
+                        }}
+                        className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${
+                          isDraggingThis ? "border-ss-text bg-ss-bg-secondary" : "border-ss-border hover:border-ss-text/40 hover:bg-ss-bg-secondary"
+                        }`}
+                        style={{ aspectRatio: "3/4" }}
+                      >
+                        {isUploading ? (
+                          <svg className="animate-spin h-5 w-5 text-ss-text-muted" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                          </svg>
+                        ) : (
+                          <>
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                            </svg>
+                            <p className="text-xs text-ss-text-muted text-center px-2">
+                              {angle === "front" ? "Tap to add" : "Optional"}
+                            </p>
+                          </>
+                        )}
+                        <input id={`file-${angle}`} type="file" accept="image/*" className="hidden"
+                          onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoFile(f, angle); }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
             {photoError && (
               <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2">{photoError}</p>
@@ -544,12 +605,12 @@ export default function OnboardingPage() {
                 </div>
               </div>
             ))}
-            {photoPath && (
-              <div className="flex items-center justify-between py-3 border-b border-ss-border">
-                <span className="text-sm text-ss-text-muted">Body photo</span>
+            {(["front","side","back"] as const).map(angle => photos[angle].path && (
+              <div key={angle} className="flex items-center justify-between py-3 border-b border-ss-border">
+                <span className="text-sm text-ss-text-muted capitalize">{angle} photo</span>
                 <span className="text-sm font-medium text-ss-success">Uploaded ✓</span>
               </div>
-            )}
+            ))}
             {error && (
               <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2 mt-2">{error}</p>
             )}
@@ -571,7 +632,7 @@ export default function OnboardingPage() {
           )}
 
           {/* Skip photo step */}
-          {step === 2 && !photoPreview && (
+          {step === 2 && !photos.front.preview && (
             <button type="button" onClick={() => setStep(3)}
               className="text-sm text-ss-text-muted hover:text-ss-text transition-colors underline">
               Skip photo
@@ -579,7 +640,7 @@ export default function OnboardingPage() {
           )}
 
           <button type="button" onClick={handleNext}
-            disabled={!canContinue() || saving || photoUploading}
+            disabled={!canContinue() || saving || photoUploading !== null}
             className="inline-flex items-center gap-2 bg-ss-text text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-ss-text/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {saving ? (
