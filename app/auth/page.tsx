@@ -1,9 +1,72 @@
-import Link from "next/link";
+"use client";
 
-export default function AuthPage() {
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
+import { createClient } from "@/lib/supabase";
+
+function AuthForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
+
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "apple" | null>(null);
+  const [error, setError] = useState(urlError === "auth_failed" ? "Authentication failed. Please try again." : "");
+  const [message, setMessage] = useState("");
+
+  const supabase = createClient();
+
+  async function handleEmailAuth(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    const { error } =
+      mode === "signin"
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+          });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    if (mode === "signup") {
+      setMessage("Check your email to confirm your account.");
+      setLoading(false);
+    } else {
+      router.push("/dashboard");
+      router.refresh();
+    }
+  }
+
+  async function handleOAuth(provider: "google" | "apple") {
+    setOauthLoading(provider);
+    setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) {
+      setError(error.message);
+      setOauthLoading(null);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-ss-bg flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
+        {/* Back + header */}
         <div className="mb-10 text-center">
           <Link href="/" className="text-sm text-ss-text-muted hover:text-ss-text transition-colors">
             ← Back
@@ -11,16 +74,44 @@ export default function AuthPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-ss-text mt-6 mb-2">
             Welcome to StyleSelf
           </h1>
-          <p className="text-sm text-ss-text-muted">Sign in or create a free account.</p>
+          <p className="text-sm text-ss-text-muted">
+            {mode === "signin" ? "Sign in to your account." : "Create a free account."}
+          </p>
         </div>
 
+        {/* Mode toggle */}
+        <div className="flex rounded-lg border border-ss-border p-1 mb-6 bg-ss-bg-secondary">
+          {(["signin", "signup"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => { setMode(m); setError(""); setMessage(""); }}
+              className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${
+                mode === m
+                  ? "bg-white text-ss-text shadow-sm"
+                  : "text-ss-text-muted hover:text-ss-text"
+              }`}
+            >
+              {m === "signin" ? "Sign in" : "Create account"}
+            </button>
+          ))}
+        </div>
+
+        {/* OAuth buttons */}
         <div className="space-y-3">
-          <button className="w-full flex items-center justify-center gap-3 border border-ss-border rounded-lg px-4 py-3 text-sm font-medium text-ss-text hover:bg-ss-bg-secondary transition-colors">
-            <GoogleIcon />
+          <button
+            onClick={() => handleOAuth("google")}
+            disabled={!!oauthLoading}
+            className="w-full flex items-center justify-center gap-3 border border-ss-border rounded-lg px-4 py-3 text-sm font-medium text-ss-text hover:bg-ss-bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {oauthLoading === "google" ? <Spinner /> : <GoogleIcon />}
             Continue with Google
           </button>
-          <button className="w-full flex items-center justify-center gap-3 border border-ss-border rounded-lg px-4 py-3 text-sm font-medium text-ss-text hover:bg-ss-bg-secondary transition-colors">
-            <AppleIcon />
+          <button
+            onClick={() => handleOAuth("apple")}
+            disabled={!!oauthLoading}
+            className="w-full flex items-center justify-center gap-3 border border-ss-border rounded-lg px-4 py-3 text-sm font-medium text-ss-text hover:bg-ss-bg-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {oauthLoading === "apple" ? <Spinner /> : <AppleIcon />}
             Continue with Apple
           </button>
         </div>
@@ -31,22 +122,44 @@ export default function AuthPage() {
           <div className="flex-1 h-px bg-ss-border" />
         </div>
 
-        <form className="space-y-3">
+        {/* Email form */}
+        <form onSubmit={handleEmailAuth} className="space-y-3">
           <input
             type="email"
             placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             className="w-full border border-ss-border rounded-lg px-4 py-3 text-sm text-ss-text placeholder:text-ss-text-muted focus:outline-none focus:ring-2 focus:ring-ss-text/10 focus:border-ss-text transition-colors"
           />
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
             className="w-full border border-ss-border rounded-lg px-4 py-3 text-sm text-ss-text placeholder:text-ss-text-muted focus:outline-none focus:ring-2 focus:ring-ss-text/10 focus:border-ss-text transition-colors"
           />
+
+          {error && (
+            <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+          {message && (
+            <p className="text-xs text-ss-success bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+              {message}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-ss-text text-white rounded-lg px-4 py-3 text-sm font-medium hover:bg-ss-text/90 transition-colors"
+            disabled={loading}
+            className="w-full bg-ss-text text-white rounded-lg px-4 py-3 text-sm font-medium hover:bg-ss-text/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Continue
+            {loading && <Spinner white />}
+            {mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
 
@@ -58,6 +171,27 @@ export default function AuthPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthForm />
+    </Suspense>
+  );
+}
+
+function Spinner({ white }: { white?: boolean }) {
+  return (
+    <svg
+      className={`animate-spin h-4 w-4 ${white ? "text-white" : "text-ss-text-muted"}`}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
   );
 }
 

@@ -1,5 +1,6 @@
 import Nav from "@/components/nav";
 import Link from "next/link";
+import { signOut } from "@/app/auth/actions";
 
 const sections = [
   {
@@ -65,9 +66,11 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          <button className="text-sm text-ss-error hover:underline transition-colors">
-            Sign out
-          </button>
+          <form action={signOut}>
+            <button type="submit" className="text-sm text-ss-error hover:underline transition-colors">
+              Sign out
+            </button>
+          </form>
         </div>
       </main>
     </>
