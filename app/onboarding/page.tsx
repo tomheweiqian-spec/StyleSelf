@@ -54,13 +54,55 @@ function getConversions(eu: number) {
 
 // ─── Skin tones ───────────────────────────────────────────────────────────────
 const SKIN_TONES = [
-  { hex: "#FDDBB4", label: "Very light" },
-  { hex: "#E8B88A", label: "Light"      },
-  { hex: "#C68642", label: "Medium"     },
-  { hex: "#8D5524", label: "Tan"        },
-  { hex: "#4A2912", label: "Deep"       },
-  { hex: "#1A0A00", label: "Very deep"  },
+  { hex: "#FEF0DA", label: "Ivory",        hair: "#E8C898" },
+  { hex: "#FDDCB5", label: "Porcelain",    hair: "#D4A870" },
+  { hex: "#F5C59C", label: "Fair",         hair: "#B08050" },
+  { hex: "#EAA87C", label: "Light",        hair: "#8B6040" },
+  { hex: "#DC9062", label: "Light Warm",   hair: "#6B4530" },
+  { hex: "#C87848", label: "Beige",        hair: "#4A2E18" },
+  { hex: "#AE6030", label: "Golden",       hair: "#3A2010" },
+  { hex: "#8B4C20", label: "Tan",          hair: "#2A1408" },
+  { hex: "#6B3818", label: "Caramel",      hair: "#1A0A04" },
+  { hex: "#4A2510", label: "Brown",        hair: "#0E0502" },
+  { hex: "#2D1508", label: "Deep",         hair: "#080202" },
+  { hex: "#160A02", label: "Ebony",        hair: "#040101" },
 ];
+
+function SkinAvatar({ hex, hair }: { hex: string; hair: string }) {
+  const shadow = "rgba(0,0,0,0.18)";
+  return (
+    <svg viewBox="0 0 60 72" className="w-full h-full" fill="none">
+      {/* shirt */}
+      <path d="M5 72 Q5 54 18 51 Q30 48 42 51 Q55 54 55 72Z" fill="#E5E7EB"/>
+      {/* neck */}
+      <rect x="24" y="43" width="12" height="10" rx="3" fill={hex}/>
+      {/* head */}
+      <circle cx="30" cy="26" r="22" fill={hex}/>
+      {/* hair */}
+      <path d="M9 22 Q8 2 30 2 Q52 2 51 22 Q46 8 30 8 Q14 8 9 22Z" fill={hair}/>
+      {/* ear left */}
+      <ellipse cx="8.5" cy="27" rx="3" ry="4" fill={hex}/>
+      {/* ear right */}
+      <ellipse cx="51.5" cy="27" rx="3" ry="4" fill={hex}/>
+      {/* eye whites */}
+      <ellipse cx="21.5" cy="26" rx="4.5" ry="4" fill="white"/>
+      <ellipse cx="38.5" cy="26" rx="4.5" ry="4" fill="white"/>
+      {/* irises */}
+      <circle cx="22" cy="27" r="2.5" fill="#4A3520"/>
+      <circle cx="39" cy="27" r="2.5" fill="#4A3520"/>
+      {/* pupils */}
+      <circle cx="22" cy="27" r="1.2" fill="#111"/>
+      <circle cx="39" cy="27" r="1.2" fill="#111"/>
+      {/* eye shine */}
+      <circle cx="23" cy="26" r="0.7" fill="white"/>
+      <circle cx="40" cy="26" r="0.7" fill="white"/>
+      {/* nose */}
+      <path d="M27 33 Q30 37.5 33 33" stroke={shadow} strokeWidth="1.5" strokeLinecap="round"/>
+      {/* mouth */}
+      <path d="M23 39 Q30 45 37 39" stroke={shadow} strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
 
 const GENDERS = ["Female", "Male", "Non-binary"] as const;
 const SHOE_SYSTEMS: { key: ShoeSystem; label: string }[] = [
@@ -112,69 +154,40 @@ function Field({ label, placeholder, value, onChange }: {
 // ─── Silhouette SVGs ──────────────────────────────────────────────────────────
 function FrontSilhouette() {
   return (
-    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
-      {/* head */}
-      <ellipse cx="40" cy="16" rx="13" ry="14" fill="#C9CBD0" />
-      {/* neck */}
-      <path d="M34 28 L34 35 Q40 37 46 35 L46 28" fill="#C9CBD0" />
-      {/* torso */}
-      <path d="M14 40 Q40 33 66 40 L62 96 Q40 103 18 96 Z" fill="#C9CBD0" />
-      {/* left arm – angled out */}
-      <path d="M14 40 L4 88 Q3 94 9 94 Q13 94 14 90 L22 44 Z" fill="#C9CBD0" />
-      {/* right arm */}
-      <path d="M66 40 L76 88 Q77 94 71 94 Q67 94 66 90 L58 44 Z" fill="#C9CBD0" />
-      {/* left leg */}
-      <path d="M18 96 L12 166 Q12 172 18 172 Q23 172 24 167 L30 100 Z" fill="#C9CBD0" />
-      {/* right leg */}
-      <path d="M62 96 L68 166 Q68 172 62 172 Q57 172 56 167 L50 100 Z" fill="#C9CBD0" />
+    <svg viewBox="0 0 60 130" className="w-full h-full p-3">
+      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
+      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
     </svg>
   );
 }
 
 function SideSilhouette() {
   return (
-    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
-      {/* head – offset to show profile */}
-      <ellipse cx="42" cy="16" rx="11" ry="14" fill="#C9CBD0" />
-      {/* slight nose bump */}
-      <path d="M53 14 Q57 18 54 22" stroke="#B0B3BA" strokeWidth="1.5" strokeLinecap="round" />
-      {/* neck */}
-      <path d="M36 28 L36 35 Q42 37 48 35 L48 28" fill="#C9CBD0" />
-      {/* torso – narrower for side view */}
-      <path d="M28 40 Q42 34 52 40 L50 96 Q42 102 28 96 Z" fill="#C9CBD0" />
-      {/* front arm – forward and down */}
-      <path d="M28 42 L14 84 Q13 90 19 90 Q22 90 24 86 L32 46 Z" fill="#C9CBD0" />
-      {/* back arm – behind body, shorter visible portion */}
-      <path d="M50 42 L58 76 Q59 81 55 81 Q52 81 51 78 L46 46 Z" fill="#C9CBD0" />
-      {/* front leg */}
-      <path d="M28 96 L22 166 Q22 172 28 172 Q33 172 34 167 L38 100 Z" fill="#C9CBD0" />
-      {/* back leg – slightly offset */}
-      <path d="M46 96 L50 162 Q50 168 45 168 Q41 168 40 163 L38 100 Z" fill="#C9CBD0" />
+    <svg viewBox="0 0 60 130" className="w-full h-full p-3">
+      <circle cx="33" cy="13" r="9" fill="#D1D5DB" />
+      <rect x="26" y="27" width="14" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="15" y="31" width="9"  height="22" rx="4" fill="#D1D5DB" />
+      <rect x="38" y="29" width="9"  height="14" rx="4" fill="#D1D5DB" />
+      <rect x="26" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="37" y="64" width="10" height="44" rx="5" fill="#D1D5DB" />
     </svg>
   );
 }
 
 function BackSilhouette() {
   return (
-    <svg viewBox="0 0 80 180" fill="none" className="w-full h-full py-3 px-2">
-      {/* head – no face */}
-      <ellipse cx="40" cy="16" rx="13" ry="14" fill="#C9CBD0" />
-      {/* hair line across back of head */}
-      <path d="M28 22 Q40 30 52 22" stroke="#B0B3BA" strokeWidth="2" strokeLinecap="round" />
-      {/* neck */}
-      <path d="M34 28 L34 35 Q40 37 46 35 L46 28" fill="#C9CBD0" />
-      {/* torso */}
-      <path d="M14 40 Q40 33 66 40 L62 96 Q40 103 18 96 Z" fill="#C9CBD0" />
-      {/* subtle spine */}
-      <line x1="40" y1="38" x2="40" y2="94" stroke="#B8BAC0" strokeWidth="1.5" strokeLinecap="round" />
-      {/* left arm */}
-      <path d="M14 40 L4 88 Q3 94 9 94 Q13 94 14 90 L22 44 Z" fill="#C9CBD0" />
-      {/* right arm */}
-      <path d="M66 40 L76 88 Q77 94 71 94 Q67 94 66 90 L58 44 Z" fill="#C9CBD0" />
-      {/* left leg */}
-      <path d="M18 96 L12 166 Q12 172 18 172 Q23 172 24 167 L30 100 Z" fill="#C9CBD0" />
-      {/* right leg */}
-      <path d="M62 96 L68 166 Q68 172 62 172 Q57 172 56 167 L50 100 Z" fill="#C9CBD0" />
+    <svg viewBox="0 0 60 130" className="w-full h-full p-3">
+      <circle cx="30" cy="13" r="10" fill="#D1D5DB" />
+      <rect x="19" y="27" width="22" height="35" rx="5" fill="#D1D5DB" />
+      <rect x="7"  y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="43" y="29" width="10" height="27" rx="5" fill="#D1D5DB" />
+      <rect x="19" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <rect x="31" y="64" width="10" height="48" rx="5" fill="#D1D5DB" />
+      <line x1="30" y1="29" x2="30" y2="60" stroke="#C4C6CA" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -201,16 +214,15 @@ function PhotoGuide() {
       <div className="grid grid-cols-3 gap-3">
         {angles.map(({ label, Icon }) => (
           <div key={label} className="text-center">
-            <div className="relative rounded-2xl overflow-hidden mx-auto shadow-sm"
-              style={{ aspectRatio: "3/4", maxWidth: 80, background: "linear-gradient(160deg, #f3f4f6 0%, #e9eaec 100%)" }}>
-              {/* angle badge */}
-              <div className="absolute top-2 left-0 right-0 flex justify-center">
-                <span className="text-[9px] font-semibold tracking-widest text-ss-text-muted uppercase bg-white/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
-                  {label}
-                </span>
-              </div>
+            <div className="relative border border-ss-border rounded-xl bg-white mx-auto overflow-hidden"
+              style={{ aspectRatio: "3/4", maxWidth: 80 }}>
+              <div className="absolute top-1.5 left-1.5 w-3 h-3 border-l-2 border-t-2 border-ss-text/30 rounded-sm" />
+              <div className="absolute top-1.5 right-1.5 w-3 h-3 border-r-2 border-t-2 border-ss-text/30 rounded-sm" />
+              <div className="absolute bottom-1.5 left-1.5 w-3 h-3 border-l-2 border-b-2 border-ss-text/30 rounded-sm" />
+              <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-r-2 border-b-2 border-ss-text/30 rounded-sm" />
               <Icon />
             </div>
+            <p className="text-xs font-medium text-ss-text mt-2">{label}</p>
           </div>
         ))}
       </div>
@@ -665,8 +677,8 @@ export default function OnboardingPage() {
         )}
 
         {step === 5 && (
-          <div>
-            <label className="text-xs font-medium text-ss-text-muted block mb-4">Select your skin tone</label>
+          <div className="space-y-4">
+            <label className="text-xs font-medium text-ss-text-muted block">Select your skin tone</label>
             <div className="grid grid-cols-6 gap-3">
               {SKIN_TONES.map((tone) => (
                 <button key={tone.hex} type="button"
@@ -682,7 +694,7 @@ export default function OnboardingPage() {
               ))}
             </div>
             {form.skin_tone && (
-              <p className="text-xs text-ss-text-muted mt-4">
+              <p className="text-xs text-ss-text-muted mt-2">
                 Selected: {SKIN_TONES.find((t) => t.hex === form.skin_tone)?.label}
               </p>
             )}
