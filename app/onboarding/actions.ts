@@ -13,6 +13,7 @@ export interface ProfileData {
   hips: number;
   shoe_size: number;
   skin_tone: string;
+  style_preferences?: string[];
   body_photo_path?: string;
   body_photo_side_path?: string;
   body_photo_back_path?: string;

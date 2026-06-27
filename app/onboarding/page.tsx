@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { saveProfile, estimateMeasurements } from "./actions";
+import { STYLES, STYLE_CATEGORIES } from "@/lib/styles";
 
 // ─── Shoe size data ───────────────────────────────────────────────────────────
 type ShoeSystem = "eu" | "usMen" | "usWomen" | "uk";
@@ -118,19 +119,22 @@ const STEPS = [
   { num: 3, title: "Your measurements",         desc: "Used to fine-tune clothing fits. Measure at the fullest point of each area." },
   { num: 4, title: "Shoe size",                 desc: "So footwear try-ons fit you correctly. Enter in whichever system you know." },
   { num: 5, title: "Skin tone",                 desc: "Helps calibrate colour matching for accessories and makeup." },
-  { num: 6, title: "You're all set",            desc: "Here's what we've saved. You can update this any time in your profile." },
+  { num: 6, title: "Your style",               desc: "Pick up to 5 aesthetics you vibe with. We'll use these to personalise your recommendations." },
+  { num: 7, title: "You're all set",            desc: "Here's what we've saved. You can update this any time in your profile." },
 ];
 
 interface FormData {
   height: string; weight: string; gender: string;
   bust: string; waist: string; hips: string;
   shoe_eu: string; skin_tone: string;
+  style_preferences: string[];
 }
 
 const EMPTY: FormData = {
   height: "", weight: "", gender: "",
   bust: "", waist: "", hips: "",
   shoe_eu: "", skin_tone: "",
+  style_preferences: [],
 };
 
 // ─── Small reusable field ─────────────────────────────────────────────────────
@@ -435,15 +439,16 @@ export default function OnboardingPage() {
 
   function canContinue() {
     if (step === 1) return form.height && form.weight && form.gender;
-    if (step === 2) return true; // photo is optional
-    if (step === 3) return true; // always continuable — user can skip measurements
+    if (step === 2) return true;
+    if (step === 3) return true;
     if (step === 4) return !!form.shoe_eu;
     if (step === 5) return !!form.skin_tone;
+    if (step === 6) return form.style_preferences.length > 0;
     return true;
   }
 
   async function handleNext() {
-    if (step < 6) { setStep((s) => s + 1); return; }
+    if (step < 7) { setStep((s) => s + 1); return; }
     setSaving(true);
     setError("");
     const result = await saveProfile({
@@ -455,6 +460,7 @@ export default function OnboardingPage() {
       hips: Number(form.hips),
       shoe_size: Number(form.shoe_eu),
       skin_tone: form.skin_tone,
+      style_preferences: form.style_preferences,
       body_photo_path:      photos.front.path ?? undefined,
       body_photo_side_path: photos.side.path  ?? undefined,
       body_photo_back_path: photos.back.path  ?? undefined,
@@ -702,6 +708,54 @@ export default function OnboardingPage() {
         )}
 
         {step === 6 && (
+          <div className="space-y-6">
+            <p className="text-xs text-ss-text-muted">
+              Pick up to 5 — your feed and outfit suggestions will match these vibes.
+            </p>
+            {STYLE_CATEGORIES.map((cat) => (
+              <div key={cat}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-ss-text-muted mb-2">{cat}</p>
+                <div className="flex flex-wrap gap-2">
+                  {STYLES.filter((s) => s.category === cat).map((style) => {
+                    const selected = form.style_preferences.includes(style.id);
+                    const maxed = form.style_preferences.length >= 5 && !selected;
+                    return (
+                      <button key={style.id} type="button"
+                        disabled={maxed}
+                        title={style.vibe}
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            style_preferences: selected
+                              ? f.style_preferences.filter((id) => id !== style.id)
+                              : [...f.style_preferences, style.id],
+                          }))
+                        }
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                          selected
+                            ? "bg-ss-text text-white border-ss-text"
+                            : maxed
+                            ? "border-ss-border text-ss-text-muted opacity-40 cursor-not-allowed"
+                            : "border-ss-border text-ss-text hover:border-ss-text/50 hover:bg-ss-bg-secondary"
+                        }`}
+                      >
+                        <span>{style.emoji}</span>
+                        {style.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            {form.style_preferences.length > 0 && (
+              <p className="text-xs text-ss-text-muted">
+                {form.style_preferences.length}/5 selected
+              </p>
+            )}
+          </div>
+        )}
+
+        {step === 7 && (
           <div className="space-y-1">
             {[
               { label: "Height",    value: `${form.height} cm` },
@@ -727,6 +781,21 @@ export default function OnboardingPage() {
                 <span className="text-sm font-medium text-ss-success">Uploaded ✓</span>
               </div>
             ))}
+            {form.style_preferences.length > 0 && (
+              <div className="flex items-start justify-between py-3 border-b border-ss-border">
+                <span className="text-sm text-ss-text-muted">Styles</span>
+                <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                  {form.style_preferences.map((id) => {
+                    const s = STYLES.find((s) => s.id === id);
+                    return s ? (
+                      <span key={id} className="text-xs bg-ss-bg-secondary border border-ss-border rounded-full px-2 py-0.5">
+                        {s.emoji} {s.label}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
             {error && (
               <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2 mt-2">{error}</p>
             )}
@@ -767,7 +836,7 @@ export default function OnboardingPage() {
                 </svg>
                 Saving…
               </>
-            ) : step === 6 ? "Go to dashboard →" : (
+            ) : step === 7 ? "Go to dashboard →" : (
               <>Continue <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
               </svg></>
