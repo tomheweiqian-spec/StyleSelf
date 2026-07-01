@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Nav from "@/components/nav";
 import { uploadWardrobeItem, getWardrobeItems, getSignedUrl, deleteWardrobeItem, getShoppingLinks } from "./actions";
 import type { WardrobeItem, Outfit } from "./actions";
+import { addFromUrl } from "./scrape";
 
 const CATEGORY_ICONS: Record<string, string> = {
   tops: "👕", bottoms: "👖", shoes: "👟", outerwear: "🧥",
@@ -48,6 +49,43 @@ function UploadZone({ onUpload }: { onUpload: (file: File) => void }) {
         onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }}
       />
     </div>
+  );
+}
+
+function UrlAddForm({
+  onSubmit,
+  submitting,
+}: {
+  onSubmit: (url: string) => void;
+  submitting: boolean;
+}) {
+  const [url, setUrl] = useState("");
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (url.trim()) onSubmit(url.trim());
+      }}
+      className="flex items-center gap-2"
+    >
+      <input
+        type="url"
+        required
+        placeholder="Or paste a product link…"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        disabled={submitting}
+        className="flex-1 text-sm rounded-xl border border-ss-border px-3 py-2.5 bg-ss-bg placeholder:text-ss-text-muted focus:outline-none focus:border-ss-text/40 disabled:opacity-50"
+      />
+      <button
+        type="submit"
+        disabled={submitting || !url.trim()}
+        className="text-sm font-medium rounded-xl border border-ss-border px-4 py-2.5 hover:bg-ss-bg-secondary transition-colors disabled:opacity-50 disabled:pointer-events-none text-ss-text"
+      >
+        {submitting ? "Adding…" : "Add"}
+      </button>
+    </form>
   );
 }
 
@@ -215,6 +253,8 @@ export default function WardrobePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [addingFromUrl, setAddingFromUrl] = useState(false);
+  const [urlError, setUrlError] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -243,6 +283,19 @@ export default function WardrobePage() {
       setItems((prev) => [{ ...result.item!, signedUrl }, ...prev]);
     }
     setUploading(false);
+  }, []);
+
+  const handleAddFromUrl = useCallback(async (url: string) => {
+    setAddingFromUrl(true);
+    setUrlError("");
+    const result = await addFromUrl(url);
+    if (result.error) {
+      setUrlError(result.error);
+    } else if (result.item) {
+      const signedUrl = (await getSignedUrl(result.item.image_path)) ?? undefined;
+      setItems((prev) => [{ ...result.item!, signedUrl }, ...prev]);
+    }
+    setAddingFromUrl(false);
   }, []);
 
   const handleDelete = useCallback((id: string) => {
@@ -278,6 +331,12 @@ export default function WardrobePage() {
 
           {uploadError && (
             <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2">{uploadError}</p>
+          )}
+
+          <UrlAddForm onSubmit={handleAddFromUrl} submitting={addingFromUrl} />
+
+          {urlError && (
+            <p className="text-xs text-ss-error bg-red-50 border border-red-100 rounded-lg px-3 py-2">{urlError}</p>
           )}
 
           {loading ? (

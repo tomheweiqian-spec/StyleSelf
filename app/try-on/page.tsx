@@ -7,8 +7,8 @@ import {
   getWardrobeForTryOn,
   startTryOn,
   checkTryOnStatus,
-  toFashnCategory,
 } from "./actions";
+import { toFashnCategory } from "./utils";
 
 type WardrobeItem = Awaited<ReturnType<typeof getWardrobeForTryOn>>[number];
 type FashnCategory = "tops" | "bottoms" | "one-pieces";

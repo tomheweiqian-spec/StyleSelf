@@ -4,13 +4,6 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const FASHN_BASE = "https://api.fashn.ai/v1";
 
-// Map our wardrobe categories to Fashn.ai categories
-export function toFashnCategory(category: string): "tops" | "bottoms" | "one-pieces" {
-  if (["bottoms"].includes(category)) return "bottoms";
-  if (["dresses"].includes(category)) return "one-pieces";
-  return "tops"; // tops, outerwear, activewear default to tops
-}
-
 async function storageToBase64(
   supabase: ReturnType<typeof createServerSupabaseClient>,
   bucket: string,
